@@ -1,0 +1,11 @@
+# Environments
+venv/
+node_modules/
+
+# Datasets
+data/*.tif
+data/*.hdf5
+
+# OS generated files
+.DS_Store
+__pycache__/
