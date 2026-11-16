@@ -1,0 +1,11 @@
+[
+  {"lng": -120.001, "lat": 35.001, "stress_level": 0.2},
+  {"lng": -120.002, "lat": 35.002, "stress_level": 0.4},
+  {"lng": -119.998, "lat": 35.000, "stress_level": 0.8},
+  {"lng": -119.999, "lat": 34.999, "stress_level": 0.9},
+  {"lng": -120.000, "lat": 35.000, "stress_level": 1.0},
+  {"lng": -120.003, "lat": 34.998, "stress_level": 0.7},
+  {"lng": -119.997, "lat": 35.003, "stress_level": 0.3},
+  {"lng": -119.999, "lat": 35.002, "stress_level": 0.85},
+  {"lng": -120.001, "lat": 34.999, "stress_level": 0.95}
+]
