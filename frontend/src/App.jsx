@@ -7,7 +7,7 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 
 import mockData from './mock_disease_data.json';
 
-const MAPBOX_ACCESS_TOKEN = 'pk.eyJ1IjoiZ29rdWxnb2t1MjE0MzQiLCJhIjoiY213ZjdjZWlyMDYybjMwcjA5a3h5OGk4aSJ9.df_u913RuhWr94jzb1-W5A'; 
+const MAPBOX_ACCESS_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN;
 
 export default function App() {
   const mapContainer = useRef(null);
