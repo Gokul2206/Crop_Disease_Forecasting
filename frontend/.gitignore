@@ -22,3 +22,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+frontend/.env
+backend/venv/
+backend/*.pth
+data/*.tif
+data/*.npy
+__pycache__/

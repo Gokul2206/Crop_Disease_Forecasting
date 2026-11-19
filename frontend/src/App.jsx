@@ -1,5 +1,4 @@
 import React, { useEffect, useRef } from 'react';
-// 1. We import the native Mapbox engine directly, bypassing the broken React wrapper entirely
 import mapboxgl from 'mapbox-gl';
 import { MapboxOverlay } from '@deck.gl/mapbox';
 import { GridLayer } from '@deck.gl/aggregation-layers';
@@ -7,60 +6,84 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 
 import mockData from './mock_disease_data.json';
 
-const MAPBOX_ACCESS_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN;
+const FREE_SATELLITE_STYLE = {
+  version: 8,
+  sources: {
+    'esri-satellite': {
+      type: 'raster',
+      tiles: [
+        'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
+      ],
+      tileSize: 256,
+      maxzoom: 15 // Prevents black squares by smoothly upscaling tiles when zoomed in
+    }
+  },
+  layers: [
+    {
+      id: 'satellite-layer',
+      type: 'raster',
+      source: 'esri-satellite'
+    }
+  ]
+};
 
 export default function App() {
   const mapContainer = useRef(null);
-  
+  const mapRef = useRef(null);
+
   useEffect(() => {
-    // 2. Instantiate the native map. This guarantees the API requests will fire!
+    if (mapRef.current) return;
+
     const map = new mapboxgl.Map({
       container: mapContainer.current,
-      style: 'mapbox://styles/mapbox/satellite-v9',
-      accessToken: MAPBOX_ACCESS_TOKEN,
+      style: FREE_SATELLITE_STYLE,
+      // Satisfies the Mapbox engine's kill switch so it doesn't delete the ESRI map
+      accessToken: import.meta.env.VITE_MAPBOX_TOKEN,
       center: [-120.0, 35.0],
       zoom: 14,
-      pitch: 60,
+      pitch: 55,
       bearing: 15,
       antialias: true
     });
 
-    // 3. Create the Deck.gl overlay with your 3D heatmap data
     const overlay = new MapboxOverlay({
-      interleaved: true,
+      interleaved: false, // Prevents WebGL depth clashes that cause black tile patches
       layers: [
         new GridLayer({
           id: 'disease-heatmap',
           data: mockData,
           pickable: true,
-          extruded: true, 
-          cellSize: 100, 
-          elevationScale: 50, 
+          extruded: true,
+          cellSize: 100,
+          coverage: 0.85,
+          elevationRange: [20, 180], // Caps max bar height to 180m (default is 1000m)
+          elevationScale: 1,
+          elevationAggregation: 'MEAN',
+          colorAggregation: 'MEAN',
           getPosition: d => [d.lng, d.lat],
           getElevationWeight: d => d.stress_level,
           getColorWeight: d => d.stress_level,
           colorRange: [
-            [0, 255, 0, 150],     
-            [255, 255, 0, 200],   
-            [255, 0, 0, 255]      
+            [0, 220, 100, 170],
+            [255, 210, 0, 210],
+            [255, 45, 45, 240]
           ]
         })
       ]
     });
 
-    // 4. Inject the 3D bars natively into the Mapbox engine
     map.addControl(overlay);
+    mapRef.current = map;
 
-    // Cleanup to prevent memory leaks during hot reloads
-    return () => map.remove();
+    return () => {
+      map.remove();
+      mapRef.current = null;
+    };
   }, []);
 
   return (
     <div style={{ width: '100vw', height: '100vh', position: 'relative', overflow: 'hidden' }}>
-      
-      {/* The physical DOM container the map will attach to */}
       <div ref={mapContainer} style={{ width: '100%', height: '100%' }} />
-
       <div style={uiStyle}>
         <h2 style={{ margin: '0 0 10px 0', color: '#ff4d4d' }}>🚨 TerraSpectra Anomaly Detected</h2>
         <p style={{ margin: 0, fontSize: '14px', color: '#ccc' }}>
